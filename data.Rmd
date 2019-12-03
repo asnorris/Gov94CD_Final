@@ -1,0 +1,61 @@
+---
+title: "WTO_data"
+author: "Alexandra Norris"
+date: "12/3/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(fs)
+library(readxl)
+library(wbstats)
+library(lubridate)
+library(janitor)
+```
+
+```{r}
+download.file("https://development-data-hub-s3-public.s3.amazonaws.com/ddhfiles/140756/horn_mavroidis_wtodataset110311.xlsx", "wto_data")
+
+wto <- read_xlsx("wto_data")
+
+# ConReqComp = member requesting consultation
+# ConReqResp = member responding to request for consultation
+# ConReqDate = date when consultation was requested
+
+ger_respond <- wto %>%
+  filter(ConReqResp == "Germany")
+```
+```{r}
+download.file("https://finances.worldbank.org/resource/tdwh-3krx.csv", "bank_loans")
+
+# this data from the World Bank shows 
+
+bank <- read_csv("bank_loans")
+
+bank %>%
+  select(country, agreement_signing_date) %>%
+  mutate(year = year(agreement_signing_date)) %>%
+  group_by(year, country) %>%
+  count()
+  
+  
+download.file("http://www.axel-dreher.de/UNSCdata.xls", "sc_membership")
+
+unsc <- read_xls("UNSCdata.xls", sheet = "data")
+
+unsc %>%
+  mutate(country = aclpname) %>%
+  select(country, year, unsc)
+
+
+world <- read_csv("IDA_Statement_Of_Credits_and_Grants_-_Historical_Data.csv") %>%
+  clean_names()
+
+x <- world %>% 
+  select(country, agreement_signing_date) %>%
+  mutate(year = (agreement_signing_date))
+
+```
+
